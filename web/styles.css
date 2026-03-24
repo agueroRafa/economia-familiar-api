@@ -1,0 +1,161 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f4f8;
+  color: #1f2937;
+}
+
+.app-header {
+  background: #111827;
+  color: #fff;
+  padding: 18px 24px;
+}
+
+.app-header h1 {
+  margin: 0;
+}
+
+.app-header p {
+  margin: 4px 0 0;
+  opacity: 0.9;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 16px auto;
+  padding: 0 12px 30px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+input,
+select,
+button {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+button {
+  background: #111827;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.inline-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.tab-btn {
+  background: #374151;
+}
+
+.tab-btn.active {
+  background: #0f766e;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.list-table th,
+.list-table td {
+  border: 1px solid #e5e7eb;
+  padding: 7px;
+  text-align: left;
+}
+
+.stats {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.stats div {
+  padding: 10px;
+  border-radius: 8px;
+  background: #ecfeff;
+  border: 1px solid #bae6fd;
+}
+
+.stats span {
+  display: block;
+  font-size: 12px;
+  color: #374151;
+}
+
+.stats strong {
+  font-size: 18px;
+}
+
+#messages {
+  margin: 0;
+  background: #0b1020;
+  color: #d1fae5;
+  padding: 10px;
+  border-radius: 8px;
+  min-height: 80px;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}

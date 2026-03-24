@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Economia Familiar by AguerattiSoft</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Economia Familiar by AguerattiSoft</h1>
+      <p>Control simple de gastos, deudas, ingresos, eventos y adjuntos.</p>
+    </header>
+
+    <main class="container">
+      <section class="card" id="config-card">
+        <h2>Configuracion API</h2>
+        <div class="row">
+          <label for="apiUrl">Base URL API</label>
+          <input id="apiUrl" placeholder="http://127.0.0.1:8000" />
+          <button id="saveApiUrl">Guardar</button>
+        </div>
+      </section>
+
+      <section class="card" id="auth-card">
+        <h2>Acceso</h2>
+        <div class="split">
+          <form id="registerForm">
+            <h3>Registro</h3>
+            <input name="full_name" placeholder="Nombre completo" required />
+            <input name="email" type="email" placeholder="Email" required />
+            <input name="password" type="password" placeholder="Password" required />
+            <button type="submit">Registrar</button>
+          </form>
+          <form id="loginForm">
+            <h3>Login</h3>
+            <input name="username" type="email" placeholder="Email" required />
+            <input name="password" type="password" placeholder="Password" required />
+            <button type="submit">Ingresar</button>
+          </form>
+        </div>
+        <div class="row">
+          <strong>Token:</strong>
+          <code id="tokenPreview">No logueado</code>
+          <button id="logoutBtn">Salir</button>
+        </div>
+      </section>
+
+      <section class="card hidden" id="dashboard-card">
+        <h2>Dashboard</h2>
+        <button id="refreshDashboard">Actualizar dashboard</button>
+        <div class="stats">
+          <div><span>Total gastos</span><strong id="totalExpenses">0</strong></div>
+          <div><span>Total deudas</span><strong id="totalDebts">0</strong></div>
+          <div><span>Total ingresos</span><strong id="totalIncomes">0</strong></div>
+          <div><span>Balance</span><strong id="balance">0</strong></div>
+        </div>
+      </section>
+
+      <section class="card hidden" id="entities-card">
+        <h2>Gestion</h2>
+        <nav class="tabs">
+          <button class="tab-btn active" data-tab="expenses">Gastos</button>
+          <button class="tab-btn" data-tab="debts">Deudas</button>
+          <button class="tab-btn" data-tab="incomes">Ingresos</button>
+          <button class="tab-btn" data-tab="events">Eventos</button>
+          <button class="tab-btn" data-tab="attachments">Adjuntos</button>
+        </nav>
+
+        <div class="tab-panel active" id="tab-expenses">
+          <form id="expenseForm" class="inline-form">
+            <input name="title" placeholder="Titulo" required />
+            <input name="amount" type="number" step="0.01" placeholder="Monto" required />
+            <input name="due_date" placeholder="Vencimiento (YYYY-MM-DD)" />
+            <input name="assigned_to_user_id" type="number" placeholder="Asignado a (id)" />
+            <input name="paid_by_user_id" type="number" placeholder="Pagado por (id)" />
+            <input name="description" placeholder="Descripcion" />
+            <button type="submit">Agregar gasto</button>
+          </form>
+          <div id="expensesList"></div>
+        </div>
+
+        <div class="tab-panel" id="tab-debts">
+          <form id="debtForm" class="inline-form">
+            <input name="creditor" placeholder="Acreedor" required />
+            <input name="amount" type="number" step="0.01" placeholder="Monto" required />
+            <input name="due_date" placeholder="Vencimiento" />
+            <input name="status" placeholder="Estado (pending/paid)" />
+            <input name="assigned_to_user_id" type="number" placeholder="Asignado a (id)" />
+            <input name="paid_by_user_id" type="number" placeholder="Pagado por (id)" />
+            <input name="description" placeholder="Descripcion" />
+            <button type="submit">Agregar deuda</button>
+          </form>
+          <div id="debtsList"></div>
+        </div>
+
+        <div class="tab-panel" id="tab-incomes">
+          <form id="incomeForm" class="inline-form">
+            <input name="source" placeholder="Fuente (Ej: Comision Nati)" required />
+            <input name="amount" type="number" step="0.01" placeholder="Monto" required />
+            <input name="income_date" placeholder="Fecha ingreso" />
+            <input name="assigned_to_user_id" type="number" placeholder="Asignado a (id)" />
+            <input name="description" placeholder="Descripcion" />
+            <button type="submit">Agregar ingreso</button>
+          </form>
+          <div id="incomesList"></div>
+        </div>
+
+        <div class="tab-panel" id="tab-events">
+          <form id="eventForm" class="inline-form">
+            <input name="title" placeholder="Titulo" required />
+            <input name="event_datetime" placeholder="2026-03-25T19:30:00" required />
+            <input name="location" placeholder="Ubicacion" />
+            <input name="assigned_to_user_id" type="number" placeholder="Asignado a (id)" />
+            <input name="description" placeholder="Descripcion" />
+            <button type="submit">Agregar evento</button>
+          </form>
+          <div id="eventsList"></div>
+        </div>
+
+        <div class="tab-panel" id="tab-attachments">
+          <form id="attachmentForm" class="inline-form">
+            <select name="entity" required>
+              <option value="expenses">Gasto</option>
+              <option value="debts">Deuda</option>
+              <option value="incomes">Ingreso</option>
+            </select>
+            <input name="entityId" type="number" placeholder="ID entidad" required />
+            <input name="kind" placeholder="Tipo (ticket/foto/comprobante)" />
+            <input name="file" type="file" required />
+            <button type="submit">Subir archivo</button>
+          </form>
+          <button id="refreshAttachments">Actualizar adjuntos</button>
+          <div id="attachmentsList"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Mensajes</h2>
+        <pre id="messages"></pre>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+  </html>
