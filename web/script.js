@@ -1,6 +1,8 @@
 const state = {
   apiUrl: localStorage.getItem("apiUrl") || "http://127.0.0.1:8000",
   token: localStorage.getItem("token") || "",
+  calendarDate: new Date(),
+  eventsCache: [],
 };
 
 const el = (id) => document.getElementById(id);
@@ -162,6 +164,8 @@ const refreshIncomes = async () => {
 
 const refreshEvents = async () => {
   const items = await apiFetch("/events");
+  state.eventsCache = items;
+  renderCalendar(items);
   el("eventsList").innerHTML = tableFrom(
     items,
     ["id", "title", "event_datetime", "location", "assigned_to_user_id"],
@@ -173,6 +177,72 @@ const refreshEvents = async () => {
   );
 };
 
+const normalizeDate = (value) => {
+  if (!value) return null;
+  const direct = new Date(value);
+  if (!Number.isNaN(direct.getTime())) return direct;
+  const fallback = new Date(String(value).replace(" ", "T"));
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
+};
+
+const eventCountByDay = (events, year, month) => {
+  const map = new Map();
+  events.forEach((event) => {
+    const date = normalizeDate(event.event_datetime);
+    if (!date) return;
+    if (date.getFullYear() !== year || date.getMonth() !== month) return;
+    const day = date.getDate();
+    const prev = map.get(day) || [];
+    prev.push(event);
+    map.set(day, prev);
+  });
+  return map;
+};
+
+const renderCalendar = (events) => {
+  const base = state.calendarDate;
+  const year = base.getFullYear();
+  const month = base.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startWeekDay = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthNames = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+  el("calendarTitle").textContent = `${monthNames[month]} ${year}`;
+
+  const byDay = eventCountByDay(events, year, month);
+  const weekHeader = ["L", "M", "X", "J", "V", "S", "D"]
+    .map((label) => `<div class="calendar-weekday">${label}</div>`)
+    .join("");
+  const cells = [];
+
+  for (let i = 0; i < startWeekDay; i += 1) {
+    cells.push('<div class="calendar-day empty"></div>');
+  }
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const dayEvents = byDay.get(day) || [];
+    const detail = dayEvents.map((item) => item.title).join(", ");
+    cells.push(`<div class="calendar-day ${dayEvents.length ? "has-events" : ""}" title="${detail}">
+      <div class="calendar-day-number">${day}</div>
+      <div class="calendar-day-events">${dayEvents.length ? `${dayEvents.length} evento(s)` : ""}</div>
+    </div>`);
+  }
+
+  el("eventsCalendar").innerHTML = weekHeader + cells.join("");
+};
+
 const refreshAttachments = async () => {
   const items = await apiFetch("/attachments");
   if (!items.length) {
@@ -180,7 +250,7 @@ const refreshAttachments = async () => {
     return;
   }
   el("attachmentsList").innerHTML = `<table class="list-table">
-    <thead><tr><th>id</th><th>tipo</th><th>archivo</th><th>ruta</th><th>gasto</th><th>deuda</th><th>ingreso</th></tr></thead>
+    <thead><tr><th>id</th><th>tipo</th><th>archivo</th><th>ruta</th><th>gasto</th><th>deuda</th><th>ingreso</th><th>evento</th></tr></thead>
     <tbody>
       ${items
         .map(
@@ -192,6 +262,7 @@ const refreshAttachments = async () => {
           <td>${it.expense_id ?? ""}</td>
           <td>${it.debt_id ?? ""}</td>
           <td>${it.income_id ?? ""}</td>
+          <td>${it.event_id ?? ""}</td>
         </tr>`
         )
         .join("")}
@@ -243,6 +314,14 @@ const init = () => {
   el("logoutBtn").onclick = logout;
   el("refreshDashboard").onclick = () => refreshDashboard().catch((e) => log(e.message));
   el("refreshAttachments").onclick = () => refreshAttachments().catch((e) => log(e.message));
+  el("prevMonthBtn").onclick = () => {
+    state.calendarDate = new Date(state.calendarDate.getFullYear(), state.calendarDate.getMonth() - 1, 1);
+    renderCalendar(state.eventsCache);
+  };
+  el("nextMonthBtn").onclick = () => {
+    state.calendarDate = new Date(state.calendarDate.getFullYear(), state.calendarDate.getMonth() + 1, 1);
+    renderCalendar(state.eventsCache);
+  };
 
   createEntitySubmit(
     "expenseForm",

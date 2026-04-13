@@ -86,6 +86,7 @@ Como es estatico, se puede subir la carpeta `web/` a:
 - `POST /expenses/{id}/attachments`
 - `POST /debts/{id}/attachments`
 - `POST /incomes/{id}/attachments`
+- `POST /events/{id}/attachments`
 - `GET /attachments`
 - `GET /dashboard`
 

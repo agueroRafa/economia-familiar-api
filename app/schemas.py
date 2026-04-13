@@ -123,6 +123,7 @@ class AttachmentOut(BaseModel):
     expense_id: Optional[int] = None
     debt_id: Optional[int] = None
     income_id: Optional[int] = None
+    event_id: Optional[int] = None
 
     class Config:
         from_attributes = True

@@ -4,17 +4,32 @@ from pathlib import Path
 from typing import List
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from . import models, schemas
 from .auth import create_access_token, hash_password, verify_password
-from .database import Base, engine
+from .database import Base, DATABASE_URL, engine
 from .dependencies import get_current_user, get_db
 
 Base.metadata.create_all(bind=engine)
+
+
+def _ensure_sqlite_attachments_event_column():
+    # Migration liviana para bases SQLite ya existentes.
+    if not DATABASE_URL.startswith("sqlite"):
+        return
+    with engine.connect() as connection:
+        rows = connection.exec_driver_sql("PRAGMA table_info(attachments)").fetchall()
+        columns = {row[1] for row in rows}
+        if "event_id" not in columns:
+            connection.exec_driver_sql("ALTER TABLE attachments ADD COLUMN event_id INTEGER")
+            connection.commit()
+
+
+_ensure_sqlite_attachments_event_column()
 
 
 def _load_cors_origins() -> list[str]:
@@ -290,6 +305,32 @@ def upload_income_attachment(
         mime_type=file.content_type,
         uploaded_by_user_id=current_user.id,
         income_id=income_id,
+    )
+    db.add(attachment)
+    db.commit()
+    db.refresh(attachment)
+    return attachment
+
+
+@app.post("/events/{event_id}/attachments", response_model=schemas.AttachmentOut, status_code=201)
+def upload_event_attachment(
+    event_id: int,
+    kind: str = "documento",
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    parent = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not parent:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    _, saved_path = _save_upload(file)
+    attachment = models.Attachment(
+        kind=kind,
+        original_filename=file.filename or "archivo",
+        saved_path=saved_path,
+        mime_type=file.content_type,
+        uploaded_by_user_id=current_user.id,
+        event_id=event_id,
     )
     db.add(attachment)
     db.commit()

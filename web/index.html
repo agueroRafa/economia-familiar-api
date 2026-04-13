@@ -115,6 +115,12 @@
             <input name="description" placeholder="Descripcion" />
             <button type="submit">Agregar evento</button>
           </form>
+          <div class="row calendar-controls">
+            <button id="prevMonthBtn" type="button">Mes anterior</button>
+            <strong id="calendarTitle">Calendario</strong>
+            <button id="nextMonthBtn" type="button">Mes siguiente</button>
+          </div>
+          <div id="eventsCalendar" class="calendar-grid"></div>
           <div id="eventsList"></div>
         </div>
 
@@ -124,6 +130,7 @@
               <option value="expenses">Gasto</option>
               <option value="debts">Deuda</option>
               <option value="incomes">Ingreso</option>
+              <option value="events">Evento</option>
             </select>
             <input name="entityId" type="number" placeholder="ID entidad" required />
             <input name="kind" placeholder="Tipo (ticket/foto/comprobante)" />

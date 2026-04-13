@@ -90,6 +90,7 @@ class Event(Base):
 
     created_by = relationship("User", foreign_keys=[created_by_user_id])
     assigned_to = relationship("User", foreign_keys=[assigned_to_user_id])
+    attachments = relationship("Attachment", back_populates="event", cascade="all, delete")
 
 
 class Attachment(Base):
@@ -106,8 +107,10 @@ class Attachment(Base):
     expense_id = Column(Integer, ForeignKey("expenses.id"), nullable=True)
     debt_id = Column(Integer, ForeignKey("debts.id"), nullable=True)
     income_id = Column(Integer, ForeignKey("incomes.id"), nullable=True)
+    event_id = Column(Integer, ForeignKey("events.id"), nullable=True)
 
     uploaded_by = relationship("User", foreign_keys=[uploaded_by_user_id])
     expense = relationship("Expense", back_populates="attachments")
     debt = relationship("Debt", back_populates="attachments")
     income = relationship("Income", back_populates="attachments")
+    event = relationship("Event", back_populates="attachments")
