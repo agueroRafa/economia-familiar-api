@@ -1,5 +1,8 @@
+const defaultApiUrl =
+  (typeof window !== "undefined" && window.__API_BASE_URL__) || "http://127.0.0.1:8000";
+
 const state = {
-  apiUrl: localStorage.getItem("apiUrl") || "http://127.0.0.1:8000",
+  apiUrl: localStorage.getItem("apiUrl") || defaultApiUrl,
   token: localStorage.getItem("token") || "",
   calendarDate: new Date(),
   eventsCache: [],

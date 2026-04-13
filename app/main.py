@@ -52,8 +52,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOADS_DIR = Path("uploads")
-UPLOADS_DIR.mkdir(exist_ok=True)
+UPLOADS_DIR = Path(os.getenv("UPLOADS_DIR", "uploads"))
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _validate_user_if_present(db: Session, user_id: int | None):
