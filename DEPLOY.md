@@ -77,3 +77,41 @@ Si en el navegador quedó guardada una Base URL vieja en “Configuracion API”
 - **Backend**: [Railway](https://railway.app/) o [Fly.io](https://fly.io/) con el mismo `Dockerfile` y las mismas variables.
 
 Si querés un solo dominio tipo `familia.com`, se puede poner el frontend en `app.familia.com` y la API en `api.familia.com` con DNS en el mismo proveedor; es un paso extra de dominio personalizado en Netlify y Render.
+
+---
+
+## PostgreSQL en Render + migraciones (3 pasos)
+
+Ya quedó preparada la configuración para usar tu instancia de Render.
+
+### Paso 1: conexión por `DATABASE_URL`
+
+- Se agregó `.env` con tu URL externa:
+  - `postgresql://bdd_economia_familiar_api_user:KoIODGJ8vM4ZHRjcBR1Q33FmT1Z8Zsnp@dpg-d7f4citckfvc739slfu0-a.oregon-postgres.render.com/bdd_economia_familiar_api`
+- El backend ahora carga variables desde `.env` automáticamente.
+- En Render (servicio web), configurá esa misma URL en la variable `DATABASE_URL`.
+
+### Paso 2: migración inicial con Alembic
+
+Se agregó estructura de Alembic:
+
+- `alembic.ini`
+- `alembic/env.py`
+- `alembic/versions/0001_initial_schema.py`
+
+Comandos:
+
+```bash
+pip install -r requirements.txt
+alembic upgrade head
+```
+
+Esto crea las tablas de usuarios, gastos, deudas, ingresos, eventos y adjuntos en PostgreSQL.
+
+### Paso 3: dejar producción usando migraciones
+
+Para producción en Render, definí:
+
+- `AUTO_CREATE_TABLES=false`
+
+Así evitás que la app dependa de `Base.metadata.create_all()` en runtime y el esquema queda controlado por Alembic.

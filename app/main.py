@@ -14,7 +14,8 @@ from .auth import create_access_token, hash_password, verify_password
 from .database import Base, DATABASE_URL, engine
 from .dependencies import get_current_user, get_db
 
-Base.metadata.create_all(bind=engine)
+if os.getenv("AUTO_CREATE_TABLES", "true").lower() == "true":
+    Base.metadata.create_all(bind=engine)
 
 
 def _ensure_sqlite_attachments_event_column():
